@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from django.utils.timezone import localtime
 
 
 class Passcard(models.Model):
@@ -10,7 +12,7 @@ class Passcard(models.Model):
     def __str__(self):
         if self.is_active:
             return self.owner_name
-        return f'{self.owner_name} (inactive)'
+        return f"{self.owner_name} (inactive)"
 
 
 class Visit(models.Model):
@@ -19,12 +21,28 @@ class Visit(models.Model):
     entered_at = models.DateTimeField()
     leaved_at = models.DateTimeField(null=True)
 
+    @property
+    def get_duration(self):
+        time_in = localtime(self.entered_at)
+        if self.leaved_at:
+            time_out = localtime(self.leaved_at)
+        else:
+            time_out = timezone.now().replace(microsecond=0)
+        delta = time_out - time_in
+        return delta
+
+    @property
+    def is_strange(self, minutes=60):
+        visit_in_seconds = self.get_duration.total_seconds()
+        visit_in_minutes = visit_in_seconds // 60
+        if visit_in_minutes > minutes:
+            return True
+        else:
+            return False
+
     def __str__(self):
-        return '{user} entered at {entered} {leaved}'.format(
+        return "{user} entered at {entered} {leaved}".format(
             user=self.passcard.owner_name,
             entered=self.entered_at,
-            leaved=(
-                f'leaved at {self.leaved_at}'
-                if self.leaved_at else 'not leaved'
-            )
+            leaved=(f"leaved at {self.leaved_at}" if self.leaved_at else "not leaved"),
         )
