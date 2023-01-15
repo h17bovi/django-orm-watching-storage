@@ -31,14 +31,18 @@ class Visit(models.Model):
         delta = time_out - time_in
         return delta
 
+    @staticmethod
+    def format_duration(duration):
+        total_seconds = duration.total_seconds()
+        hours = int(total_seconds // 3600)
+        minutes = int((total_seconds % 3600) // 60)
+        return f"{hours}ч {minutes}мин"
+
     @property
     def is_strange(self, minutes=60):
         visit_in_seconds = self.get_duration.total_seconds()
         visit_in_minutes = visit_in_seconds // 60
-        if visit_in_minutes > minutes:
-            return True
-        else:
-            return False
+        return visit_in_minutes > minutes
 
     def __str__(self):
         return "{user} entered at {entered} {leaved}".format(
