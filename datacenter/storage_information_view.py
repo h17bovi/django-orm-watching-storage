@@ -4,13 +4,13 @@ from datacenter.models import Visit
 
 
 def storage_information_view(request):
-    visitors = Visit.objects.filter(leaved_at=None).all()
+    visitors = Visit.objects.filter(leaved_at=None)
 
     non_closed_visits = [
         {
             "who_entered": visitor.passcard.owner_name,
             "entered_at": visitor.entered_at,
-            "duration": visitor.get_duration,
+            "duration": Visit.format_duration(visitor.get_duration),
             "is_strange": visitor.is_strange,
         }
         for visitor in visitors
